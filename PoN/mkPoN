@@ -1,0 +1,36 @@
+#!/bin/bash
+SDIR="$( cd "$( dirname "$0" )" && pwd )"
+
+SINGULARITY_CACHE=/rtsess01/compute/juno/bic/ROOT/opt/singularity/cachedir_socci
+GATK_IMAGE=$SINGULARITY_CACHE/depot.galaxyproject.org-singularity-gatk4-4.4.0.0--py36hdfd78af_0.img
+
+gatk () {
+  singularity exec -B /rtsess01:/rtsess01 $GATK_IMAGE gatk "$@"
+}
+
+if [ -e ./bundle.sh ]; then
+   echo
+   echo "sourcing local bundle"
+   echo
+   source ./bundle.sh
+   cat ./bundle.sh
+else
+
+  RBASE=/rtsess01/compute/juno/bic/ROOT/rscr/references
+  GENOME=${RBASE}/Mus_musculus/BIC_MSK/GRCm38/Sequence/WholeGenomeFasta/GRCm38.fa
+  GENOME_INTERVALS=${RBASE}/Mus_musculus/BIC_MSK/GRCm38/Annotation/intervals/GRCm38_calling_list.bed
+
+fi
+
+PON_VCFS_DIR=$(realpath ../out/PoN_1)
+
+rm -rf pon_db/
+
+gatk GenomicsDBImport \
+    -R $GENOME \
+    -L $GENOME_INTERVALS \
+    --genomicsdb-workspace-path pon_db \
+    $(find $PON_VCFS_DIR -name "*.mutect2.vcf.gz" | awk '{print "-V", $1}')
+
+#gatk CreateSomaticPanelOfNormals -R $GENOME -V gendb://pon_db -O pon.vcf.gz
+
