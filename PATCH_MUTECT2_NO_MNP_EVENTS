@@ -1,0 +1,24 @@
+diff --git a/conf/modules/mutect2.config b/conf/modules/mutect2.config
+index 2f74ee63..5d4f8f48 100644
+--- a/conf/modules/mutect2.config
++++ b/conf/modules/mutect2.config
+@@ -17,7 +17,7 @@ process {
+     if (params.tools && params.tools.split(',').contains('mutect2')) {
+ 
+         withName: 'GATK4_MUTECT2' {
+-            ext.args   = { params.ignore_soft_clipped_bases ? "--dont-use-soft-clipped-bases true --f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz" : "--f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz" }
++            ext.args   = { params.ignore_soft_clipped_bases ? "--dont-use-soft-clipped-bases true --f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz --max-mnp-distance 0" : "--f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz --max-mnp-distance 0" }
+             ext.prefix = { meta.num_intervals <= 1 ? "${meta.id}.mutect2" : "${meta.id}.mutect2.${intervals.simpleName}" }
+             ext.when   = { params.tools && params.tools.split(',').contains('mutect2') }
+             publishDir = [
+@@ -31,8 +31,8 @@ process {
+         // PAIR_VARIANT_CALLING
+         withName: 'MUTECT2_PAIRED' {
+             ext.args   = { params.ignore_soft_clipped_bases ?
+-                                "--dont-use-soft-clipped-bases true --f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz --normal-sample ${meta.patient}_${meta.normal_id}" :
+-                                "--f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz --normal-sample ${meta.patient}_${meta.normal_id}" }
++                                "--dont-use-soft-clipped-bases true --f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz --normal-sample ${meta.patient}_${meta.normal_id} --max-mnp-distance 0" :
++                                "--f1r2-tar-gz ${task.ext.prefix}.f1r2.tar.gz --normal-sample ${meta.patient}_${meta.normal_id} --max-mnp-distance 0" }
+         }
+ 
+         withName: 'MERGE_MUTECT2.*' {
