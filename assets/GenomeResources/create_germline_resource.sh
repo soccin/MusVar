@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#
+# This script is used to create the `germline_resource` file.
+#
+#
+#
+
 bcftools () { 
     singularity exec -B /rtsess01 /home/socci/ROOT/opt/singularity/cachedir_nxf/depot.galaxyproject.org-singularity-bcftools-1.17--haef29d1_0.img bcftools "$@"; 
 }

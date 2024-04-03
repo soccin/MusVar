@@ -1,5 +1,0 @@
-HOSTS=$(more ~/VALID_IGO_HOSTS_2024-03-20  | fgrep ji | awk '{print $1":1"}' | xargs | tr ' ' ',')
-nohup ~/Work/Skynet/disBatch/disBatch -s $HOSTS Tasks &
-
-for host in $(echo $HOSTS | tr ',' '\n' | sed 's/:.*//' ); do ssh $host "killall -u socci"; done
-
