@@ -31,7 +31,8 @@ mfile=gsub("mapping","manifest",argv[1]) %>% gsub(".txt",".csv",.)
 manifest=read_csv(mfile,show_col_types = FALSE) %>% mutate(status=ifelse(type=="Tumor",1,0)) %>% mutate(sample=gsub("^s_","",sample))
 
 sarekInput=left_join(fdir,manifest) %>% 
-    select(patient,sample,type,status,everything())
+    mutate(lane=cc(fcid,str_extract(fastq_1,"_(L\\d+)_",group=1))) %>%
+    select(patient,sample,status,lane,matches("fastq"))
 
 write_csv(sarekInput,"sarek_input_somatic.csv")
 
