@@ -3,7 +3,7 @@
 OPWD=$(pwd -P)
 SDIR="$( cd "$( dirname "$0" )" && pwd )"
 
-RDIR=$(realpath $SDIR/..)
+RDIR=$(realpath $SDIR)
 
 export NXF_SINGULARITY_CACHEDIR=/rtsess01/compute/juno/bic/ROOT/opt/singularity/cachedir_socci
 export TMPDIR=/scratch/socci
