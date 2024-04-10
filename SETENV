@@ -1,7 +1,0 @@
-export IGENOMES=/rtsess01/compute/juno/bic/ROOT/work/socci/Users/SawyersC/RomeroR1/NextFlow/Sarak/igenomes
-export NXF_SINGULARITY_CACHEDIR=/rtsess01/compute/juno/bic/ROOT/opt/singularity/cachedir_nxf
-export VEP_CACHE=/rtsess01/compute/juno/bic/ROOT/work/socci/Users/SawyersC/RomeroR1/NextFlow/Sarak/data/vep_cache
-
-HOSTS=$(cat /home/socci/VALID_IGO_HOSTS_2024-03-20 | egrep "ji|jh" | awk '{print $1":1"}' | xargs | tr ' ' ',')
-
-
