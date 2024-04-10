@@ -21,9 +21,6 @@ INPUT=$(realpath $1)
 
 ODIR=$(pwd -P)/out
 
-echo $INPUT > runSarek.log
-echo $PID >> runSarek.log
-
 #
 # Need each instance to run in its own directory
 #
@@ -33,7 +30,7 @@ WDIR=run/$TUID
 mkdir -p $WDIR
 cd $WDIR
 
-LOG=runSarek.log
+LOG=sarekRun.log
 
 echo \$WDIR=$(realpath .) >$LOG
 echo \$ODIR=$ODIR >>$LOG
@@ -46,22 +43,34 @@ nextflow run $RDIR/sarek/main.nf -ansi-log false \
     --tools freebayes,mutect2,strelka,manta \
     --intervals $RDIR/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed \
     --input $INPUT \
-    --outdir $ODIR #\
-    # > nextflow_sarek_${PID}.log \
-    # 2> nextflow_sarek_${PID}.err
+    --outdir $ODIR \
+    > $LOG
+    2> ${LOG/.log/.err}
 
-mkdir -p $ODIR/runlog
+CMD_LOG=$ODIR/pipeline_info/cmd.sh.log
+mkdir -p $(dirname $CMD_LOG)
 
 GTAG=$(git --git-dir=$RDIR/.git --work-tree=$RDIR describe --all --long --tags --dirty="-UNCOMMITED" --always)
 GURL=$(git --git-dir=$RDIR/.git --work-tree=$RDIR config --get remote.origin.url)
 
-# cat <<-END_VERSION > $ODIR/cmd.sh.log
-# RDIR: $RDIR
-# GURL: $GURL
-# GTAG: $GTAG
-# PWD: $OPWD
-# WDIR: $WDIR
+cat <<-END_VERSION > $CMD_LOG
+DATE: $(date)
+RDIR: $RDIR
+GURL: $GURL
+GTAG: $GTAG
+PWD: $OPWD
+WDIR: $WDIR
 
-# Script: $0 $*
+Script: $0 $*
 
-# END_VERSION
+nextflow run $RDIR/sarek/main.nf -ansi-log false \
+    -profile singularity \
+    -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
+    -c $RDIR/conf/neo.config \
+    --genome null --igenomes_ignore true \
+    --tools freebayes,mutect2,strelka,manta \
+    --intervals $RDIR/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed \
+    --input $INPUT \
+    --outdir $ODIR
+
+END_VERSION
