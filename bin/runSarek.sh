@@ -40,7 +40,8 @@ echo \$ODIR=$ODIR >>$LOG
 
 nextflow run $RDIR/sarek/main.nf -ansi-log false \
     -profile singularity \
-    -c $RDIR/assets/GenomeResources/genomes_BIC_MSK_GRCm38.config \
+    -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
+    -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
     --intervals $RDIR/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed \
