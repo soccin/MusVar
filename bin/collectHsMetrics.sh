@@ -25,7 +25,8 @@ exec 2>&1
 ODIR=post/metrics/collectHsMetrics
 mkdir -vp $ODIR
 
-bsub picardV2 CollectHsMetrics \
+bsub picardV3 CollectHsMetrics \
+    COVERAGE_CAP=1000 \
     I=$BAM \
     O=$ODIR/${SID}_hs_metrics.txt \
     R=$fasta \
