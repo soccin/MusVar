@@ -1,0 +1,13 @@
+Rscript MusVar/multicall/getSarekPairs.R \
+    sarek_input_somatic.csv out/preprocessing/recalibrated/ \
+    | xargs -n 2 echo \
+        bsub -o LSF.V/ -J VarD_$$ -n 16 -W 6:00 \
+            ./VarDict/varDictPaired.sh int MusVar/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed
+
+echo "MOVE output from VARDICT"
+
+Rscript MusVar/multicall/getSarekPairs.R sarek_input_somatic.csv \
+    | xargs -n 3 echo bsub -o LSF.PS/ -J PS -n 5 \
+        ./MusVar/multicall/postSarekPair.sh out/variant_calling
+
+
