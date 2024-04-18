@@ -1,3 +1,5 @@
+#!/bin/bash
+
 Rscript MusVar/multicall/getSarekPairs.R \
     sarek_input_somatic.csv out/preprocessing/recalibrated/ \
     | xargs -n 2 echo \
@@ -7,7 +9,7 @@ Rscript MusVar/multicall/getSarekPairs.R \
 echo "MOVE output from VARDICT"
 
 Rscript MusVar/multicall/getSarekPairs.R sarek_input_somatic.csv \
-    | xargs -n 3 echo bsub -o LSF.PS/ -J PS -n 5 \
+    | xargs -n 3 echo bsub -o LSF.PS/ -J PS_$$ -n 5 \
         ./MusVar/multicall/postSarekPair.sh out/variant_calling
 
 
