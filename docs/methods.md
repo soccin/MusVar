@@ -1,5 +1,7 @@
 # Mouse Variant Pipeline
 
+### Version 1.0.2
+
 ## Main Pipeline
 
 Variant calling was performed using the nf-core/sarek pipeline [Garcia2020, Ewels2020], supplemented with additional custom scripts available on GitHub [MusVar2024]. The sarek pipeline was executed in somatic mode, utilizing the following callers: Mutect2, Strelka, and FreeBayes. Version 3.4.0 was used; however, genomic resources were updated and modified as detailed below.
@@ -26,6 +28,6 @@ Garcia M, Juhos S, Larsson M, et al. Sarek: A portable workflow for whole-genome
 
 Ewels, PA, Peltzer, A, Fillinger, S, et al. The nf-core framework for community-curated bioinformatics pipelines. Nat Biotechnol 38, 276–278 (2020). ([https://doi.org/10.1038/s41587-020-0439-x](https://doi.org/10.1038/s41587-020-0439-x))
 
-MusVar 2024, version 0.7.1 ([MusVar-v0.7.2](https://github.com/soccin/MusVar/tree/v0.7.2))
+MusVar 2024, version 1.0.2 ([MusVar-v1.0.2](https://github.com/soccin/MusVar/tree/v1.0.2))
 
 VarDict 2021, version 1.8.3 ([vardict-v1.8.3](https://github.com/AstraZeneca-NGS/VarDictJava/tree/v1.8.3))
