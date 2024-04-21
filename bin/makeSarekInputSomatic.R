@@ -6,6 +6,11 @@ require(tidyverse)
 
 argv=commandArgs(trailing=T)
 
+if(len(argv)<1) {
+    cat("\n   usage: makeSarekInputSomatic.R SAMPLE_MAPPING.txt\n\n")
+    quit()
+}
+
 fdir=map(argv[1],read_tsv,col_names=F,show_col_types = FALSE) %>%
     bind_rows %>%
     select(sample=X2,fcid=X3,fdir=X4) %>%
