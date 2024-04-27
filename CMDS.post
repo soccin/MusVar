@@ -1,5 +1,18 @@
 #!/bin/bash
 
+set -eu
+
+SDIR="$( cd "$( dirname "$0" )" && pwd )"
+export PATH=$SDIR/multicall/bin:$PATH
+
+VEPVERSION=$(vep --help | fgrep ensembl-vep | awk '{print $3}')
+
+if [ "$VEPVERSION" != "102.0" ]; then
+    echo -e "\n\n   vep not properly installed; see instructions\n"
+    echo -e "VEPVERSION=[${VEPVERSION}]\n\n"
+    exit 1
+fi
+
 Rscript MusVar/multicall/getSarekPairs.R \
     sarek_input_somatic.csv out/preprocessing/recalibrated/ \
     | xargs -n 2 \
