@@ -50,7 +50,7 @@ nextflow run $RDIR/sarek/main.nf -ansi-log false \
 CMD_LOG=$ODIR/pipeline_info/cmd.sh.log
 mkdir -p $(dirname $CMD_LOG)
 
-GTAG=$(git --git-dir=$RDIR/.git --work-tree=$RDIR describe --all --long --tags --dirty="-UNCOMMITED" --always)
+GTAG=$(git --git-dir=$RDIR/.git --work-tree=$RDIR describe --long --tags --dirty="-UNCOMMITED" --always)
 GURL=$(git --git-dir=$RDIR/.git --work-tree=$RDIR config --get remote.origin.url)
 
 cat <<-END_VERSION > $CMD_LOG
