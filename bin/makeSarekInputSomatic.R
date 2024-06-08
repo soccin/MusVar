@@ -33,6 +33,17 @@ if(!all(gsub("_R1_","_R2_",fdir$fastq_1)==fdir$fastq_2)) {
 }
 
 mfile=gsub("mapping","manifest",argv[1]) %>% gsub(".txt",".csv",.)
+if(!file.exists(mfile)) {
+    cat("\n\n   Manifest",mfile,"does not exists\n")
+    cat("   Create file with columns:\n      sample,patient,type\n")
+    cat("       type==[NORMAL|TUMOR]\n\n")
+    cat("   Template file created _sample_manifest.csv\n\n")
+    fdir %>%
+        distinct(sample) %>%
+        mutate(patient=NA,type=NA) %>%
+        write_csv("_sample_manifest.csv")
+    quit()
+}
 manifest=read_csv(mfile,show_col_types = FALSE) %>% mutate(status=ifelse(type=="Tumor",1,0)) %>% mutate(sample=gsub("^s_","",sample))
 
 sarekInput=left_join(fdir,manifest) %>% 
