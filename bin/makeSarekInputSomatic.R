@@ -36,7 +36,7 @@ mfile=gsub("mapping","manifest",argv[1]) %>% gsub(".txt",".csv",.)
 if(!file.exists(mfile)) {
     cat("\n\n   Manifest",mfile,"does not exists\n")
     cat("   Create file with columns:\n      sample,patient,type\n")
-    cat("       type==[NORMAL|TUMOR]\n\n")
+    cat("       type==[Normal|Tumor] (Case sensitive)\n\n")
     cat("   Template file created _sample_manifest.csv\n\n")
     fdir %>%
         distinct(sample) %>%
