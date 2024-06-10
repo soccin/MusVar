@@ -16,7 +16,7 @@ fi
 Rscript MusVar/multicall/getSarekPairs.R \
     sarek_input_somatic.csv out/preprocessing/recalibrated/ \
     | xargs -n 2 \
-        bsub -o LSF.V_$$/ -J VarD_$$ -n 16 -W 6:00 \
+        bsub -o LSF.V_$$/ -J VarD_$$ -n 16 -W 6:00 -R cmorsc1 \
             MusVar/VarDict/varDictPaired.sh post MusVar/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed
 
 bSync VarD_$$
