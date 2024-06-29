@@ -63,6 +63,38 @@ def print_header(header):
     for hh in header:
         print(hh)
 
+@define
+class SAMAlign:
+    id = field()
+    contig = field()
+    mateContig = field()
+    data = field()
+
+    @classmethod
+    def init_from_string(cls,samAlignStr):
+        f=samAlignStr.strip().split("\t")
+        return cls(f[0],f[2],f[6],f)
+
+def read_sam_maps(fname):
+    with open(fname,"r") as fp:
+        for line in fp:
+            if not line.startswith("@"):
+                yield SAMAlign.init_from_string(line)
+
+def read_sam_mapsByGroup(fname):
+    group=[]
+    for map in read_sam_maps(fname):
+        if group==[]:
+            group.append(map)
+        elif map.id==group[0].id:
+            group.append(map)
+        else:
+            yield group
+            group=[map]
+
+    if group!=[]:
+        yield group
+
 if __name__=="__main__":
     header=read_sam_header("s_2-3.sam")
     transContigs=get_transContigs(header)
@@ -74,6 +106,7 @@ if __name__=="__main__":
                     )
     headerNew.append(programComment)
     print_header(headerNew)
+
 
 
 

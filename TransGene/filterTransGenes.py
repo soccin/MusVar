@@ -1,6 +1,8 @@
 from SAMTools import *
 import sys
 
+
+
 if __name__=="__main__":
 
     if len(sys.argv)!=2:
@@ -18,5 +20,20 @@ if __name__=="__main__":
     headerNew.append(programComment)
     print_header(headerNew)
 
+    transContigs=set(transContigs)
 
+    for alignGrp in read_sam_mapsByGroup(sys.argv[1]):
 
+        ids=set([ai.id for ai in alignGrp])
+        if len(ids)>1:
+            raise ValueError()
+
+        contigs=set([ai.contig for ai in alignGrp])
+        mateContigs=set([ai.mateContig for ai in alignGrp])
+
+        if not (
+                transContigs.intersection(contigs)!=set()
+                or transContigs.intersection(mateContigs)!=set()
+                ):
+            for ai in alignGrp:
+                print("\t".join(ai.data))
