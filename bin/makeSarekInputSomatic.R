@@ -1,3 +1,6 @@
+get_lane_from_fastq<-function(ff) {
+    paste(strsplit(readLines(ff,1),":")[[1]][3:4],collapse="_")
+}
 getFastqFiles<-function(fdir,read) {
    fs::dir_ls(fdir,recur=T,regex=paste0("_R",read,"_\\d+.fastq.gz")) %>% sort %>% list
 }
@@ -13,7 +16,7 @@ if(len(argv)<1) {
 
 fdir=map(argv[1],read_tsv,col_names=F,show_col_types = FALSE) %>%
     bind_rows %>%
-    select(sample=X2,fcid=X3,fdir=X4) %>%
+    select(sample=X2,fdir=X4) %>%
     mutate(sample=gsub("^s_","",sample)) %>%
     mutate(sample=ifelse(
                     grepl("Mouse-Pooled-Normal",sample),
@@ -21,7 +24,6 @@ fdir=map(argv[1],read_tsv,col_names=F,show_col_types = FALSE) %>%
                     sample
                 )
     ) %>%
-    mutate(fcid=str_extract(fcid,"[^_]+_[^_]+_(.*)",group=T)) %>%
     rowwise %>%
     mutate(fastq_1=getFastqFiles(fdir,1),fastq_2=getFastqFiles(fdir,2)) %>%
     unnest(cols=c(fastq_1,fastq_2)) %>%
@@ -46,8 +48,9 @@ if(!file.exists(mfile)) {
 }
 manifest=read_csv(mfile,show_col_types = FALSE) %>% mutate(status=ifelse(type=="Tumor",1,0)) %>% mutate(sample=gsub("^s_","",sample))
 
-sarekInput=left_join(fdir,manifest) %>% 
-    mutate(lane=cc(fcid,str_extract(fastq_1,"_(L\\d+)_",group=1))) %>%
+sarekInput=left_join(fdir,manifest) %>%
+    rowwise %>%
+    mutate(lane=get_lane_from_fastq(fastq_1)) %>%
     select(patient,sample,status,lane,matches("fastq"))
 
 write_csv(sarekInput,"sarek_input_somatic.csv")
