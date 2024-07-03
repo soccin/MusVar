@@ -21,10 +21,16 @@ Rscript MusVar/multicall/getSarekPairs.R \
 
 bSync VarD_$$
 
+echo -e "\n\n============================================================"
+echo -e "\n\nDone with varDictPaired.sh\n\n"
+
 Rscript MusVar/multicall/getSarekPairs.R sarek_input_somatic.csv \
     | xargs -n 3 bsub -o LSF.PS/ -J PS_$$ -n 5 \
         ./MusVar/multicall/postSarekPair.sh out/variant_calling
 
 bSync PS_$$
+
+echo -e "\n\n============================================================"
+echo -e "Done with postSarekPair.sh\n\n"
 
 Rscript MusVar/multicall/filter01.R
