@@ -1,6 +1,6 @@
 # Mouse Variant Pipeline
 
-### Version 1.0.2
+### Version 1.1.1
 
 ## Main Pipeline
 
@@ -28,6 +28,6 @@ Garcia M, Juhos S, Larsson M, et al. Sarek: A portable workflow for whole-genome
 
 Ewels, PA, Peltzer, A, Fillinger, S, et al. The nf-core framework for community-curated bioinformatics pipelines. Nat Biotechnol 38, 276–278 (2020). ([https://doi.org/10.1038/s41587-020-0439-x](https://doi.org/10.1038/s41587-020-0439-x))
 
-MusVar 2024, version 1.0.2 ([MusVar-v1.0.2](https://github.com/soccin/MusVar/tree/v1.0.2))
+MusVar 2024, version 1.1.1 ([MusVar-v1.1.1](https://github.com/soccin/MusVar/tree/v1.1.1))
 
 VarDict 2021, version 1.8.3 ([vardict-v1.8.3](https://github.com/AstraZeneca-NGS/VarDictJava/tree/v1.8.3))

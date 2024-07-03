@@ -1,4 +1,4 @@
-# MusVar: Output (v1.0.2)
+# MusVar: Output (v1.1.1)
 
 ## Introduction
 
