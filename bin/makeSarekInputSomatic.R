@@ -1,3 +1,11 @@
+argv=commandArgs(trailing=T)
+
+if(len(argv)<1) {
+    cat("\n   usage: makeSarekInputSomatic.R SAMPLE_MAPPING.txt\n\n")
+    quit()
+}
+
+
 get_lane_from_fastq<-function(ff) {
     paste(strsplit(readLines(ff,1),":")[[1]][3:4],collapse="_")
 }
@@ -7,12 +15,6 @@ getFastqFiles<-function(fdir,read) {
 
 require(tidyverse)
 
-argv=commandArgs(trailing=T)
-
-if(len(argv)<1) {
-    cat("\n   usage: makeSarekInputSomatic.R SAMPLE_MAPPING.txt\n\n")
-    quit()
-}
 
 fdir=map(argv[1],read_tsv,col_names=F,show_col_types = FALSE) %>%
     bind_rows %>%
