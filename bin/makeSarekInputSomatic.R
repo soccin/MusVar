@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 argv=commandArgs(trailing=T)
 
 if(len(argv)<1) {
