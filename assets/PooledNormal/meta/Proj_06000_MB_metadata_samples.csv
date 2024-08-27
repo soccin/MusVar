@@ -1,0 +1,5 @@
+investigatorSampleId,sampleName,cmoPatientId,igoId,baitSet,cmoSampleClass,tumorOrNormal,preservation,sampleOrigin,specimenType,oncoTreeCode,tissueLocation,collectionYear,sex,species,IGOComplete
+Mouse-Pooled-Normal-1,Mouse-Pooled-Normal-1,C-W5UXXJ,06000_MB_1,M-IMPACT_v2,Normal,Normal,Frozen,Whole Blood,Blood,None,,,Unknown,Mouse,True
+Mouse-Pooled-Normal-2,Mouse-Pooled-Normal-2,C-W5UXXJ,06000_MB_2,M-IMPACT_v2,Normal,Normal,Frozen,Whole Blood,Blood,None,,,Unknown,Mouse,True
+Mouse-Pooled-Normal-3,Mouse-Pooled-Normal-3,C-W5UXXJ,06000_MB_3,M-IMPACT_v2,Normal,Normal,Frozen,Whole Blood,Blood,None,,,Unknown,Mouse,True
+Mouse-Pooled-Normal-4,Mouse-Pooled-Normal-4,C-W5UXXJ,06000_MB_4,M-IMPACT_v2,Normal,Normal,Frozen,Whole Blood,Blood,None,,,Unknown,Mouse,True

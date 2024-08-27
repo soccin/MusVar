@@ -1,0 +1,4 @@
+_1	Mouse-Pooled-Normal-1	DIANA_0578_BHH7FKDSX5	/igo/delivery/FASTQ/DIANA_0578_BHH7FKDSX5/Project_06000_MB/Sample_Mouse-Pooled-Normal-1_IGO_06000_MB_1	PE
+_1	Mouse-Pooled-Normal-2	MICHELLE_0625_AHWCWCDSX5_v2	/igo/delivery/FASTQ/MICHELLE_0625_AHWCWCDSX5_v2/Project_06000_MB/Sample_Mouse-Pooled-Normal-2_IGO_06000_MB_2	PE
+_1	Mouse-Pooled-Normal-3	RUTH_0224_AHG273DSX5	/igo/delivery/FASTQ/RUTH_0224_AHG273DSX5/Project_06000_MB/Sample_Mouse-Pooled-Normal-3_IGO_06000_MB_3	PE
+_1	Mouse-Pooled-Normal-4	DIANA_0627_BHM3YJDMXY	/igo/delivery/FASTQ/DIANA_0627_BHM3YJDMXY/Project_06000_MB/Sample_Mouse-Pooled-Normal-4_IGO_06000_MB_4	PE
