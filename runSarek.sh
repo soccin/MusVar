@@ -9,12 +9,37 @@ export NXF_SINGULARITY_CACHEDIR=/rtsess01/compute/juno/bic/ROOT/opt/singularity/
 export TMPDIR=/scratch/socci
 export PATH=$RDIR/bin:$PATH
 
-
-if [ "$#" -lt "1" ]; then
+usage() {
     echo
-    echo usage: runSarek.sh INPUT_SAREK.csv
+    echo "  " usage: runSarek.sh [-t TARGETS] INPUT_SAREK.csv
     echo
     exit
+}
+
+TARGETDIR=M-IMPACT_v2_GRCm38
+
+while getopts "ht:" opt; do
+    case $opt in
+        t) TARGETDIR=$OPTARG ;;
+        h|*) usage ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$#" -lt "1" ]; then
+    usage
+fi
+
+TARGETS=$RDIR/assets/Targets/$TARGETDIR/*__1000pad.bed
+
+if [ ! -e $TARGETS ]; then
+    echo
+    echo "ERROR: Targets file not found: $TARGETDIR"
+    echo 
+    ls -1d $RDIR/assets/Targets/* | perl -pe 's|.*/|      |'
+    echo
+    exit 1
 fi
 
 INPUT=$(realpath $1)
@@ -35,13 +60,13 @@ LOG=sarekRun.log
 echo \$WDIR=$(realpath .) >$LOG
 echo \$ODIR=$ODIR >>$LOG
 
-nextflow run $RDIR/sarek/main.nf -ansi-log false \
+echo nextflow run $RDIR/sarek/main.nf -ansi-log false \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
-    --intervals $RDIR/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed \
+    --intervals $TARGETS \
     --input $INPUT \
     --outdir $ODIR \
     > $LOG
@@ -69,7 +94,7 @@ nextflow run $RDIR/sarek/main.nf -ansi-log false \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
-    --intervals $RDIR/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed \
+    --intervals $TARGETS \
     --input $INPUT \
     --outdir $ODIR
 
