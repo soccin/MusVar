@@ -66,18 +66,26 @@ LOG=sarekRun.log
 echo \$WDIR=$(realpath .) >$LOG
 echo \$ODIR=$ODIR >>$LOG
 
-nextflow run $RDIR/sarek/main.nf -ansi-log false \
+#
+# If the script is running in a terminal, then set ANSI_LOG to true
+#
+case $(ps -o stat= -p $$) in
+  *+*) ANSI_LOG="true" ;;
+  *) ANSI_LOG="false" ;;
+esac
+
+nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
-    -c $RDIR/conf/${TARGETS}.conf \
+    -c $RDIR/conf/${TARGET}.config \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
     --intervals $INTERVAL_BED_FILE \
     --input $INPUT \
     --outdir $ODIR \
-    > $LOG
-    2> ${LOG/.log/.err}
+    2> ${LOG/.log/.err} \
+    | tee $LOG
 
 CMD_LOG=$ODIR/pipeline_info/cmd.sh.log
 mkdir -p $(dirname $CMD_LOG)
@@ -98,7 +106,7 @@ Script: $0 $*
 nextflow run $RDIR/sarek/main.nf -ansi-log false \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
-    -c $RDIR/conf/${TARGETS}.conf \
+    -c $RDIR/conf/${TARGET}.config \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
