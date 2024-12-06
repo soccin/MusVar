@@ -102,15 +102,19 @@ PWD: $OPWD
 WDIR: $WDIR
 
 Script: $0 $*
+TARGET: $TARGET
+INTERVAL_BED_FILE: $INTERVAL_BED_FILE
+INPUT: $INPUT
+ODIR: $ODIR
 
-nextflow run $RDIR/sarek/main.nf -ansi-log false \
+nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
     -c $RDIR/conf/${TARGET}.config \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
-    --intervals $TARGETS \
+    --intervals $INTERVAL_BED_FILE \
     --input $INPUT \
     --outdir $ODIR
 
