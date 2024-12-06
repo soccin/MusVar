@@ -12,8 +12,9 @@ module load bedtools
 # GRCm38 assembly being used.
 #
 
-cat Twist_Mouse_Exome_Target_Rev1_7APR20.bed \
+cat orig/Twist_Mouse_Exome_Target_Rev1_7APR20.bed \
     | fgrep -v _ \
+    | sed 's/chrM/chrMT/' \
     | sed 's/^chr//' \
     | sort -k1,1V -k2,2n -k3,3n \
     >Twist_Mouse_Exome_Target_Rev1_7APR20_GRCm38_CLEAN.bed
