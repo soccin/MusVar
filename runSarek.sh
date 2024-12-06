@@ -16,11 +16,11 @@ usage() {
     exit
 }
 
-TARGETDIR=M-IMPACT_v2_GRCm38
+TARGET=M-IMPACT_v2_GRCm38
 
 while getopts "ht:" opt; do
     case $opt in
-        t) TARGETDIR=$OPTARG ;;
+        t) TARGET=$OPTARG ;;
         h|*) usage ;;
     esac
 done
@@ -31,16 +31,22 @@ if [ "$#" -lt "1" ]; then
     usage
 fi
 
-TARGETS=$RDIR/assets/Targets/$TARGETDIR/*__1000pad.bed
+TARGET_RESOURCES=$RDIR/assets/Targets/$TARGET/target.resources.sh
 
-if [ ! -e $TARGETS ]; then
+if [ ! -e $TARGET_RESOURCES ]; then
     echo
-    echo "ERROR: Targets file not found: $TARGETDIR"
+    echo "ERROR: Targets resources not found: $TARGET_RESOURCES"
     echo 
     ls -1d $RDIR/assets/Targets/* | perl -pe 's|.*/|      |'
     echo
     exit 1
 fi
+
+. $TARGET_RESOURCES
+
+echo
+echo "  "Using target resources: ${TARGET}
+echo
 
 INPUT=$(realpath $1)
 
@@ -60,13 +66,13 @@ LOG=sarekRun.log
 echo \$WDIR=$(realpath .) >$LOG
 echo \$ODIR=$ODIR >>$LOG
 
-echo nextflow run $RDIR/sarek/main.nf -ansi-log false \
+nextflow run $RDIR/sarek/main.nf -ansi-log false \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
-    --intervals $TARGETS \
+    --intervals $INTERVAL_BED_FILE \
     --input $INPUT \
     --outdir $ODIR \
     > $LOG

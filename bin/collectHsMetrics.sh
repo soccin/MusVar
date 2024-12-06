@@ -13,8 +13,22 @@ SDIR="$( cd "$( dirname "$0" )" && pwd )"
 
 RBASE="/rtsess01/compute/juno/bic/ROOT/rscr/references"
 fasta="${RBASE}/Mus_musculus/BIC_MSK/GRCm38/Sequence/WholeGenomeFasta/GRCm38.fa"
-TARGET_DIR=$SDIR/../assets/Targets/
-BAM=$1
+TARGETS=$1
+
+TARGET_RESOURCES=$SDIR/../assets/Targets/$TARGET/target.resources.sh
+
+if [ ! -e $TARGET_RESOURCES ]; then
+    echo
+    echo "ERROR: Targets resources not found: $TARGET_RESOURCES"
+    echo
+    ls -1d $RDIR/assets/Targets/* | perl -pe 's|.*/|      |'
+    echo
+    exit 1
+fi
+
+. $TARGET_RESOURCES
+
+BAM=$2
 SID=$(basename $1 | sed 's/.recal.cram//')
 
 mkdir -vp post/logs/LSF
@@ -30,6 +44,6 @@ bsub picardV3 CollectHsMetrics \
     I=$BAM \
     O=$ODIR/${SID}_hs_metrics.txt \
     R=$fasta \
-    BAIT_INTERVALS=$TARGET_DIR/M-IMPACT_v2_GRCm38_baits.ilist \
-    TARGET_INTERVALS=$TARGET_DIR/M-IMPACT_v2_GRCm38_targets.ilist \
+    BAIT_INTERVALS=$BAIT_INTERVALS \
+    TARGET_INTERVALS=$TARGET_INTERVALS \
     PER_TARGET_COVERAGE=$ODIR/${SID}_hs_metrics_Targets.txt
