@@ -1,21 +1,24 @@
 #!/bin/bash
 
+set -ue
+
 bsub () {
-    if [ "$EXECUTOR" == "local" ]; then
-        exec $@
-    else
+    if [ "${EXECUTOR:-}" == "bsub" ]; then
         exec bsub -o post/logs/LSF/ -J PIC.chm -n 3 -R "rusage[mem=12]" -W 359 \
         $@
+    else
+        exec $@
     fi
 }
 
 SDIR="$( cd "$( dirname "$0" )" && pwd )"
+export RDIR=$SDIR/..
 
 RBASE="/rtsess01/compute/juno/bic/ROOT/rscr/references"
 fasta="${RBASE}/Mus_musculus/BIC_MSK/GRCm38/Sequence/WholeGenomeFasta/GRCm38.fa"
 TARGETS=$1
 
-TARGET_RESOURCES=$SDIR/../assets/Targets/$TARGET/target.resources.sh
+TARGET_RESOURCES=$RDIR/assets/Targets/$TARGETS/target.resources.sh
 
 if [ ! -e $TARGET_RESOURCES ]; then
     echo
@@ -29,7 +32,7 @@ fi
 . $TARGET_RESOURCES
 
 BAM=$2
-SID=$(basename $1 | sed 's/.recal.cram//')
+SID=$(basename $BAM | sed 's/.recal.cram//')
 
 mkdir -vp post/logs/LSF
 
