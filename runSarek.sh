@@ -69,6 +69,7 @@ echo \$ODIR=$ODIR >>$LOG
 nextflow run $RDIR/sarek/main.nf -ansi-log false \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
+    -c $RDIR/conf/${TARGETS}.conf \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
@@ -97,6 +98,7 @@ Script: $0 $*
 nextflow run $RDIR/sarek/main.nf -ansi-log false \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
+    -c $RDIR/conf/${TARGETS}.conf \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
