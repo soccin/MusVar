@@ -16,6 +16,12 @@ usage() {
     exit
 }
 
+
+#
+# Save full command line to print in log
+#
+CMDLINE="$@"
+
 TARGET=M-IMPACT_v2_GRCm38
 
 while getopts "ht:" opt; do
@@ -75,6 +81,7 @@ case $(ps -o stat= -p $$) in
 esac
 
 nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
+    -resume \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
     -c $RDIR/conf/${TARGET}.config \
@@ -101,13 +108,14 @@ GTAG: $GTAG
 PWD: $OPWD
 WDIR: $WDIR
 
-Script: $0 $*
+Script: $0 $CMDLINE
 TARGET: $TARGET
 INTERVAL_BED_FILE: $INTERVAL_BED_FILE
 INPUT: $INPUT
 ODIR: $ODIR
 
 nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
+    -resume \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
     -c $RDIR/conf/${TARGET}.config \
