@@ -20,7 +20,7 @@ INTERVAL_BED_FILE=$(cat out/pipeline_info/cmd.sh.log | fgrep INTERVAL_BED_FILE: 
 Rscript MusVar/multicall/getSarekPairs.R \
     $SAREK_INPUT out/preprocessing/recalibrated/ \
     | xargs -n 2 \
-        bsub -o LSF.V_$$/ -J VarD_$$ -n 16 -W 6:00 -R cmorsc1 \
+        bsub $BSUB_ARGS -o LSF.V_$$/ -J VarD_$$ -n 16 -W 6:00 -R cmorsc1 \
             MusVar/VarDict/varDictPaired.sh post \
             $INTERVAL_BED_FILE
 
@@ -30,7 +30,7 @@ echo -e "\n\n============================================================"
 echo -e "\n\nDone with varDictPaired.sh\n\n"
 
 Rscript MusVar/multicall/getSarekPairs.R $SAREK_INPUT \
-    | xargs -n 3 bsub -o LSF.PS/ -J PS_$$ -n 5 \
+    | xargs -n 3 bsub $BSUB_ARGS -o LSF.PS/ -J PS_$$ -n 5 \
         ./MusVar/multicall/postSarekPair.sh $TARGET out/variant_calling
 
 bSync PS_$$
