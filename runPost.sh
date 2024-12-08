@@ -6,7 +6,7 @@ SDIR="$( cd "$( dirname "$0" )" && pwd )"
 export PATH=$SDIR/multicall/bin:$PATH
 
 VEPVERSION=$(vep --help | fgrep ensembl-vep | awk '{print $3}')
-SAREK_INPUT=$(cat out/pipeline_info/cmd.sh.log  | fgrep Script: | awk '{print $3}')
+SAREK_INPUT=$(cat out/pipeline_info/cmd.sh.log  | fgrep INPUT: | awk '{print $2}')
 
 if [ "$VEPVERSION" != "102.0" ]; then
     echo -e "\n\n   vep not properly installed; see instructions\n"
