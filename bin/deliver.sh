@@ -9,7 +9,7 @@ fi
 
 ODIR=$1
 
-rsync -avP --exclude="markduplicates" --exclude="recalibrated" out/ $ODIR/sarek
+rsync -avP --exclude="*.ba?" --exclude="markduplicates" --exclude="recalibrated" out/ $ODIR/sarek
 rsync -avP post $ODIR
 
 PROJNO=$(echo $ODIR | tr '/' '\n' | fgrep Proj_ | sed 's/Proj_//')
