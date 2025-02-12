@@ -1,5 +1,7 @@
 #!/bin/bash
 
+if [ "$BSUB_ARGS" == "" ]; then BSUB_ARGS=""; fi
+
 set -eu
 
 SDIR="$( cd "$( dirname "$0" )" && pwd )"
