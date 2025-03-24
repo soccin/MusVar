@@ -9,13 +9,50 @@ export NXF_SINGULARITY_CACHEDIR=/rtsess01/compute/juno/bic/ROOT/opt/singularity/
 export TMPDIR=/scratch/socci
 export PATH=$RDIR/bin:$PATH
 
-
-if [ "$#" -lt "1" ]; then
+usage() {
     echo
-    echo usage: runSarek.sh INPUT_SAREK.csv
+    echo "  " usage: runSarek.sh [-t TARGETS] INPUT_SAREK.csv
     echo
     exit
+}
+
+
+#
+# Save full command line to print in log
+#
+CMDLINE="$@"
+
+TARGET=M-IMPACT_v2_GRCm38
+
+while getopts "ht:" opt; do
+    case $opt in
+        t) TARGET=$OPTARG ;;
+        h|*) usage ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ "$#" -lt "1" ]; then
+    usage
 fi
+
+TARGET_RESOURCES=$RDIR/assets/Targets/$TARGET/target.resources.sh
+
+if [ ! -e $TARGET_RESOURCES ]; then
+    echo
+    echo "ERROR: Targets resources not found: $TARGET_RESOURCES"
+    echo 
+    ls -1d $RDIR/assets/Targets/* | perl -pe 's|.*/|      |'
+    echo
+    exit 1
+fi
+
+. $TARGET_RESOURCES
+
+echo
+echo "  "Using target resources: ${TARGET}
+echo
 
 INPUT=$(realpath $1)
 
@@ -36,27 +73,26 @@ echo \$WDIR=$(realpath .) >$LOG
 echo \$ODIR=$ODIR >>$LOG
 
 #
-# Check if in backgroup or forground
+# If the script is running in a terminal, then set ANSI_LOG to true
 #
-# https://unix.stackexchange.com/questions/118462/how-can-a-bash-script-detect-if-it-is-running-in-the-background
-#
-
 case $(ps -o stat= -p $$) in
   *+*) ANSI_LOG="true" ;;
   *) ANSI_LOG="false" ;;
 esac
 
 nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
+    -resume \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
+    -c $RDIR/conf/${TARGET}.config \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
-    --intervals $RDIR/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed \
+    --intervals $INTERVAL_BED_FILE \
     --input $INPUT \
     --outdir $ODIR \
-    > $LOG
-    2> ${LOG/.log/.err}
+    2> ${LOG/.log/.err} \
+    | tee $LOG
 
 CMD_LOG=$ODIR/pipeline_info/cmd.sh.log
 mkdir -p $(dirname $CMD_LOG)
@@ -72,15 +108,21 @@ GTAG: $GTAG
 PWD: $OPWD
 WDIR: $WDIR
 
-Script: $0 $*
+Script: $0 $CMDLINE
+TARGET: $TARGET
+INTERVAL_BED_FILE: $INTERVAL_BED_FILE
+INPUT: $INPUT
+ODIR: $ODIR
 
 nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
+    -resume \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
+    -c $RDIR/conf/${TARGET}.config \
     -c $RDIR/conf/neo.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
-    --intervals $RDIR/assets/Targets/M-IMPACT_v2_mm10_targets__1000pad.bed \
+    --intervals $INTERVAL_BED_FILE \
     --input $INPUT \
     --outdir $ODIR
 
