@@ -35,7 +35,18 @@ LOG=sarekRun.log
 echo \$WDIR=$(realpath .) >$LOG
 echo \$ODIR=$ODIR >>$LOG
 
-nextflow run $RDIR/sarek/main.nf -ansi-log false \
+#
+# Check if in backgroup or forground
+#
+# https://unix.stackexchange.com/questions/118462/how-can-a-bash-script-detect-if-it-is-running-in-the-background
+#
+
+case $(ps -o stat= -p $$) in
+  *+*) ANSI_LOG="true" ;;
+  *) ANSI_LOG="false" ;;
+esac
+
+nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
     -c $RDIR/conf/neo.config \
@@ -63,7 +74,7 @@ WDIR: $WDIR
 
 Script: $0 $*
 
-nextflow run $RDIR/sarek/main.nf -ansi-log false \
+nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
     -c $RDIR/conf/neo.config \
