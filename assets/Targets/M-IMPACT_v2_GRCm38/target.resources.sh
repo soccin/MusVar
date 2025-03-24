@@ -1,0 +1,3 @@
+INTERVAL_BED_FILE=$RDIR/assets/Targets/M-IMPACT_v2_GRCm38/M-IMPACT_v2_mm10_targets__1000pad.bed
+BAIT_INTERVALS=$RDIR/assets/Targets/M-IMPACT_v2_GRCm38/M-IMPACT_v2_GRCm38_baits.ilist
+TARGET_INTERVALS=$RDIR/assets/Targets/M-IMPACT_v2_GRCm38/M-IMPACT_v2_GRCm38_targets.ilist

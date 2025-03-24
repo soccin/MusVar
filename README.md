@@ -1,10 +1,12 @@
 # Mouse Variant Pipeline
 
+## Version: 1.3.1 - branch `feat/wes`
+
 Code for running the nf-core/sarek pipeline with M-IMPACT
 
-## BRANCH: feat/wes
+This version can handle different assays
 
-Version for running mouse whole exome
+This is version has the special filter01.R in multicall for WES
 
 ## Install
 
