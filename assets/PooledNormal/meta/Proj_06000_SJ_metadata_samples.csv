@@ -1,0 +1,7 @@
+investigatorSampleId,sampleName,cmoPatientId,igoId,baitSet,cmoSampleClass,tumorOrNormal,preservation,sampleOrigin,specimenType,oncoTreeCode,tissueLocation,collectionYear,sex,species,IGOComplete
+mPN-1,mPN-1,C-8EANYH,06000_SJ_1,Twist_mWES,Normal,Normal,,Fresh or Frozen,Non-PDX,None,,,,Mouse,True
+mPN-2,mPN-2,C-EF55NM,06000_SJ_2,Twist_mWES,Normal,Normal,,Fresh or Frozen,Non-PDX,None,,,,Mouse,True
+mPN-3,mPN-3,C-V63H9V,06000_SJ_3,Twist_mWES,Normal,Normal,,Fresh or Frozen,Non-PDX,None,,,,Mouse,True
+mPN-4,mPN-4,C-EN01LA,06000_SJ_4,M-IMPACT_v2,Normal,Normal,,Fresh or Frozen,Non-PDX,None,,,,Mouse,True
+mPN-5,mPN-5,C-1CJE78,06000_SJ_5,M-IMPACT_v2,Normal,Normal,,Fresh or Frozen,Non-PDX,None,,,,Mouse,True
+mPN-6,mPN-6,C-LRDHHV,06000_SJ_6,M-IMPACT_v2,Normal,Normal,,Fresh or Frozen,Non-PDX,None,,,,Mouse,True
