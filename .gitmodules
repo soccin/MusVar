@@ -1,6 +1,3 @@
-[submodule "sarek"]
-	path = sarek
-	url = git@github.com:soccin/sarek.git
 [submodule "multicall"]
 	path = multicall
 	url = git@github.com:soccin/MultiCall.git
