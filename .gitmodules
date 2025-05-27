@@ -1,3 +1,6 @@
 [submodule "multicall"]
 	path = multicall
 	url = git@github.com:soccin/MultiCall.git
+[submodule "sarek"]
+	path = sarek
+	url = https://github.com/nf-core/sarek.git
