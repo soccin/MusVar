@@ -1,5 +1,9 @@
 # Mouse Variant Pipeline
 
+## Branch: sarek-3.5.1
+
+Update to latest version (2025-05-27) of sarek pipeline
+
 ## Version: 1.3.2
 
 Pulled in updates for sarek 3.4.4-A (for real this time). Also fixed memory in MarkDups
