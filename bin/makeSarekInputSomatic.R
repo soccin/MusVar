@@ -9,8 +9,10 @@ if(len(argv)<1) {
 
 
 get_lane_from_fastq<-function(ff) {
-    paste(strsplit(readLines(ff,1),":")[[1]][3:4],collapse="_")
+    SID=basename(ff) %>% gsub("_IGO_.*","",.)
+    paste0(SID,":",paste(strsplit(readLines(ff,1),":")[[1]][3:4],collapse="_"))
 }
+
 getFastqFiles<-function(fdir,read) {
    fs::dir_ls(fdir,recur=T,regex=paste0("_R",read,"_\\d+.fastq.gz")) %>% sort %>% list
 }
