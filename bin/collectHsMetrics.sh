@@ -32,7 +32,7 @@ fi
 . $TARGET_RESOURCES
 
 BAM=$2
-SID=$(samtools view -H $CRAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | sed 's/LB://')
+SID=$(samtools view -H $BAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | sed 's/LB://')
 
 mkdir -vp post/logs/LSF
 
