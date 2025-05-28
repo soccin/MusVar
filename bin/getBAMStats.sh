@@ -11,7 +11,7 @@ module load samtools
 
 SID=$(samtools view -H $CRAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | sed 's/LB://')
 
-ODIR=post/metrics/
+ODIR=post/metrics/$SID
 mkdir -p $ODIR
 TDIR=tmp/bam/$SID
 mkdir -p $TDIR

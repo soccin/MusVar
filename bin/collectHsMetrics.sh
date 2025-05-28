@@ -39,7 +39,7 @@ mkdir -vp post/logs/LSF
 exec >> post/logs/${SID}_hs_metrics.log
 exec 2>&1
 
-ODIR=post/metrics/collectHsMetrics
+ODIR=post/metrics/$SID
 mkdir -vp $ODIR
 
 bsub picardV3 CollectHsMetrics \
