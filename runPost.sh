@@ -19,6 +19,20 @@ fi
 TARGET=$(cat out/pipeline_info/cmd.sh.log | fgrep TARGET: | awk '{print $2}')
 INTERVAL_BED_FILE=$(cat out/pipeline_info/cmd.sh.log | fgrep INTERVAL_BED_FILE: | awk '{print $2}')
 
+#######################################################
+#
+# Get more stats from BAM
+#
+
+ls out/preprocessing/markduplicates/*/*cram \
+    | xargs -n 1 bsub $BSUB_ARGS -o LSF.S_$$/ -J Stats_$$ -n 8 -R cmorsc1 \
+        $SDIR/bin/getBAMStats.sh
+
+#######################################################
+#
+# Call multicall/vardict and post
+#
+
 Rscript $SDIR/multicall/getSarekPairs.R \
     $SAREK_INPUT out/preprocessing/recalibrated/ \
     | xargs -n 2 \
@@ -41,3 +55,6 @@ echo -e "\n\n============================================================"
 echo -e "Done with postSarekPair.sh\n\n"
 
 Rscript $SDIR/multicall/filter01.R
+
+bSync Stats_$$
+
