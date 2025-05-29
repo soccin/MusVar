@@ -32,7 +32,7 @@ fi
 . $TARGET_RESOURCES
 
 BAM=$2
-SID=$(samtools view -H $BAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | sed 's/LB://')
+SID=$(samtools view -H $BAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | sed 's/..://')
 
 mkdir -vp post/logs/LSF
 
@@ -43,6 +43,7 @@ ODIR=post/metrics/$SID
 mkdir -vp $ODIR
 
 bsub picardV3 CollectHsMetrics \
+    LEVEL=null \
     LEVEL=SAMPLE \
     COVERAGE_CAP=2500 \
     I=$BAM \

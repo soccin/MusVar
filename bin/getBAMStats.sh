@@ -9,7 +9,7 @@ CRAM=$1
 
 module load samtools
 
-SID=$(samtools view -H $CRAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | sed 's/LB://')
+SID=$(samtools view -H $CRAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | sed 's/..://')
 
 ODIR=post/metrics/$SID
 mkdir -p $ODIR
@@ -21,12 +21,14 @@ samtools index -@ 8 $TDIR/${SID}.bam
 
 picardV3 \
     CollectAlignmentSummaryMetrics \
+    LEVEL=null \
     LEVEL=SAMPLE \
     I=$TDIR/${SID}.bam \
     O=$ODIR/${SID}.as.txt &
 
 picardV3 \
     CollectInsertSizeMetrics \
+    LEVEL=null \
     LEVEL=SAMPLE \
     I=$TDIR/${SID}.bam \
     O=$ODIR/${SID}.ins.txt \
