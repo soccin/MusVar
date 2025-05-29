@@ -21,11 +21,13 @@ samtools index -@ 8 $TDIR/${SID}.bam
 
 picardV3 \
     CollectAlignmentSummaryMetrics \
+    LEVEL=SAMPLE \
     I=$TDIR/${SID}.bam \
     O=$ODIR/${SID}.as.txt &
 
 picardV3 \
     CollectInsertSizeMetrics \
+    LEVEL=SAMPLE \
     I=$TDIR/${SID}.bam \
     O=$ODIR/${SID}.ins.txt \
     H=$ODIR/${SID}.ins.pdf &

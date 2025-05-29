@@ -43,6 +43,7 @@ ODIR=post/metrics/$SID
 mkdir -vp $ODIR
 
 bsub picardV3 CollectHsMetrics \
+    LEVEL=SAMPLE \
     COVERAGE_CAP=2500 \
     I=$BAM \
     O=$ODIR/${SID}_hs_metrics.txt \
