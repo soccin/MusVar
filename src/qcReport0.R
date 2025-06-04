@@ -102,6 +102,14 @@ p0=bind_rows(list(asm,mdm,hsm)) %>%
 
 
 mm=bind_rows(list(asm,mdm,hsm))
+
+qcAll=mm %>%
+    select(sid,Metric,Value) %>%
+    spread(Metric,Value) %>%
+    get_qc_table
+write_csv(qcCtrl,cc("qcAll",DATE(),".csv"))
+qca0=qcAll %>% gather(Q,V,-Metric)
+
 mctrl=mm %>%
     filter(type!="invest")
 qcCtrl=mctrl %>%
@@ -111,11 +119,10 @@ qcCtrl=mctrl %>%
     get_qc_table
 write_csv(qcCtrl,cc("qcControls",DATE(),".csv"))
 
-qca1=qcCtrl %>%
-    gather(Q,V,-Metric)
+qca1=qcCtrl %>% gather(Q,V,-Metric)
 
-pqc=mm %>%
-    ggplot(aes(Metric,Value)) + theme_light() + coord_flip() +  theme(axis.title.y=element_blank(),axis.text.y=element_blank()) + geom_hline(aes(yintercept=V,color=Q),data=(qca1)) + facet_wrap(~Metric,scale="free",ncol=2) + geom_jitter(alpha=.5) + scale_color_manual(values=c("darkred","grey30","grey50","grey30","darkred"))
+pqc=mm %>% ggplot(aes(Metric,Value)) + theme_light() + coord_flip() + theme(axis.title.y=element_blank(),axis.text.y=element_blank()) + facet_wrap(~Metric,scale="free",ncol=2) + geom_jitter(alpha=.5) + scale_color_manual(values=c("darkred","grey30","grey50","grey30","darkred"))
+pqc1=pqc + geom_hline(aes(yintercept=V,color=Q),data=(qca1))
 
 # pg0=asm %>%
 #     filter(grepl("ZT",SAMPLE)) %>%
