@@ -102,15 +102,23 @@ metrics0=c(
     "PERCENT_DUPLICATION", "ZERO_CVG_TARGETS_PCT"
 )
 
-qcControl=read_csv("MusVar/assets/QC/qcControls_20250604_.csv") %>% filter(Metric %in% metrics0) %>% gather(Q,V,-Metric)
+projNo=readLines("out/pipeline_info/cmd.sh.log") %>% grep("PWD:",.,value=T) %>% strsplit(.,"/") %>% unlist %>% grep("Proj",.,value=T) %>% gsub("Proj_","",.)
 
-dq=bind_rows(list(asm,mdm,hsm)) %>% filter(Metric %in% metrics0)
-pg=dq %>% ggplot(aes(status,Value,color=status)) + theme_light(16) + geom_hline(aes(yintercept=V,color=Q),data=qcControl,alpha=.3) + geom_boxplot(outlier.shape=NA,width=boxWidth) + facet_wrap(~Metric,scale="free") + geom_jitter(width=boxWidth/2,size=3,alpha=.5) + scale_color_manual(values=c("darkblue","darkred","grey30","grey50","grey30","darkred","darkgreen"))
-pdf(file="qcPlot__16108_B.pdf",width=1.5*14,height=1.5*8.5); print(pg); dev.off()
+if(len(projNo)==0 || is.null(projNo) || projNo=="") {
+    projNo="PrjoNo"
+}
+
+qcControl=read_csv("MusVar/assets/QC/qcControls_20250604_.csv") %>% filter(Metric %in% metrics0) %>% gather(Q,V,-Metric)
+qcControl=qcControl %>% mutate(QQ=as.numeric(gsub("q_","",Q))) %>% mutate(OO=abs(log(QQ/(1-QQ)))/3+.5)
+
+dq=bind_rows(list(asm,mdm,hsm)) %>% filter(Metric %in% metrics0) %>% distinct(sid,Metric,.keep_all=T)
+pg=dq %>% ggplot(aes(status,Value,color=status)) + theme_light(16) + geom_hline(aes(yintercept=V,color=Q),data=qcControl,linewidth=qcControl$OO,alpha=.3) + geom_boxplot(outlier.shape=NA,width=boxWidth) + facet_wrap(~Metric,scale="free") + geom_jitter(width=boxWidth/2,size=3,alpha=.5) + scale_color_manual(values=c("darkblue","darkred","grey30","darkred","grey30","darkred","darkgreen")) + theme(panel.grid.minor = element_blank(),panel.grid.major.x=element_blank())
+pdf(file=file.path("post/reports",cc("qcPlot_",projNo,".pdf")),width=1.5*14,height=1.5*8.5); print(pg); dev.off()
 
 qcTbl=dq %>% select(patient,sample,status,Metric,Value) %>% spread(Metric,Value) %>% arrange(patient,status)
-openxlsx::write.xlsx(qcTbl,"qcTable__16108_B.xlsx")
+openxlsx::write.xlsx(qcTbl,file.path("post/reports",cc("qcTable_",projNo,".xlsx")))
 
+quit()
 rlang::abort("NOT IMPLEMENTED")
 
 p0=bind_rows(list(asm,mdm,hsm)) %>%
