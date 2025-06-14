@@ -55,6 +55,7 @@ echo -e "\n\n============================================================"
 echo -e "Done with postSarekPair.sh\n\n"
 
 Rscript $SDIR/multicall/filter01.R
+Rscript $SDIR/src/qcReport1.R
 
 bSync Stats_$$
 
