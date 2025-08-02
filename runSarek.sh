@@ -118,8 +118,8 @@ nextflow run $RDIR/sarek/main.nf -ansi-log $ANSI_LOG \
     -resume \
     -profile singularity \
     -c $RDIR/conf/genomes_BIC_MSK_GRCm38.config \
-    -c $RDIR/conf/${TARGET}.config \
     -c $RDIR/conf/neo.config \
+    -c $RDIR/conf/${TARGET}.config \
     --genome null --igenomes_ignore true \
     --tools freebayes,mutect2,strelka,manta \
     --intervals $INTERVAL_BED_FILE \
