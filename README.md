@@ -1,8 +1,10 @@
 # Mouse Variant Pipeline
 
-## Branch feat/wgs
+## Branch devs/wgs-01
 
-Version to work with Mouse WGS samples
+Version to work with Mouse WGS samples. 
+
+- Fix config to have LSF params be set different for different assays
 
 ## Version: 1.3.2
 
