@@ -6,6 +6,7 @@ set -eu
 
 SDIR="$( cd "$( dirname "$0" )" && pwd )"
 export PATH=$SDIR/multicall/bin:$PATH
+RDIR=$SDIR
 
 VEPVERSION=$(vep --help | fgrep ensembl-vep | awk '{print $3}')
 SAREK_INPUT=$(cat out/pipeline_info/cmd.sh.log  | fgrep INPUT: | awk '{print $2}')
@@ -16,8 +17,19 @@ if [ "$VEPVERSION" != "102.0" ]; then
     exit 1
 fi
 
+
 TARGET=$(cat out/pipeline_info/cmd.sh.log | fgrep TARGET: | awk '{print $2}')
 INTERVAL_BED_FILE=$(cat out/pipeline_info/cmd.sh.log | fgrep INTERVAL_BED_FILE: | awk '{print $2}')
+
+. $RDIR/assets/Targets/$TARGET/target.resources.sh
+
+if [ -v VARDICT_BED_FILE ]; then
+    echo -e "\nUsing VarDict BED file for calling\n"
+    INTERVAL_BED_FILE=$VARDICT_BED_FILE
+fi
+
+echo TARGET=$TARGET
+echo INTERVAL_BED_FILE=$INTERVAL_BED_FILE
 
 #######################################################
 #
