@@ -24,6 +24,12 @@ if [ "$#" != "4" ]; then
     exit
 fi
 
+if [ "$LSB_DJOB_NUMPROC" == "" ]; then
+  CORES=12
+else
+  CORES=$LSB_DJOB_NUMPROC
+fi
+
 ODIR=$1
 BED=$(realpath $2)
 NORMAL=$(realpath $3)
@@ -51,8 +57,8 @@ wait
 NORMAL=$TDIR/$(basename ${NORMAL/.cram/.bam})
 TUMOR=$TDIR/$(basename ${TUMOR/.cram/.bam})
 
-samtools index -@ 6 $NORMAL &
-samtools index -@ 6 $TUMOR
+samtools index -@ $((CORES / 2)) $NORMAL &
+samtools index -@ $((CORES / 2)) $TUMOR
 
 wait
 
@@ -62,7 +68,7 @@ mkdir -p $ODIR
 OVCF=$ODIR/${TTAG}_vs_${NTAG}.vardict.vcf
 
 $VDIR/VarDict \
-    -th 12 \
+    -th $((CORES-2)) \
     -G $fasta \
     -f $AF_THR \
     -N $TID \

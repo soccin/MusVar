@@ -31,13 +31,21 @@ fi
 echo TARGET=$TARGET
 echo INTERVAL_BED_FILE=$INTERVAL_BED_FILE
 
+if [ "$TARGET" == "WGS_GRCm38" ]; then
+  CORES=48
+else
+  CORES=24
+fi
+
+echo CORES=$CORES
+
 #######################################################
 #
 # Get more stats from BAM
 #
 
 ls out/preprocessing/markduplicates/*/*cram \
-    | xargs -n 1 bsub $BSUB_ARGS -o LSF.S_$$/ -J Stats_$$ -n 8 -R cmorsc1 \
+    | xargs -n 1 bsub $BSUB_ARGS -o LSF.S_$$/ -J Stats_$$ -n 8 -R cmorsc1 -W 24:00 \
         $SDIR/bin/getBAMStats.sh
 
 #######################################################
@@ -48,7 +56,7 @@ ls out/preprocessing/markduplicates/*/*cram \
 Rscript $SDIR/multicall/getSarekPairs.R \
     $SAREK_INPUT out/preprocessing/recalibrated/ \
     | xargs -n 2 \
-        bsub $BSUB_ARGS -o LSF.V_$$/ -J VarD_$$ -n 16 -W 6:00 -R cmorsc1 \
+        bsub $BSUB_ARGS -o LSF.V_$$/ -J VarD_$$ -n $CORES -W 48:00 -R cmorsc1 \
             $SDIR/VarDict/varDictPaired.sh post \
             $INTERVAL_BED_FILE
 
@@ -58,7 +66,7 @@ echo -e "\n\n============================================================"
 echo -e "\n\nDone with varDictPaired.sh\n\n"
 
 Rscript $SDIR/multicall/getSarekPairs.R $SAREK_INPUT \
-    | xargs -n 3 bsub $BSUB_ARGS -o LSF.PS/ -J PS_$$ -n 5 \
+    | xargs -n 3 bsub $BSUB_ARGS -o LSF.PS/ -J PS_$$ -n 5 -W 48:00 \
         $SDIR/multicall/postSarekPair.sh $TARGET out/variant_calling
 
 bSync PS_$$
