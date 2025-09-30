@@ -49,20 +49,22 @@ mkdir -p $TDIR
 
 trap "rm -rf $TDIR" EXIT
 
-samtools view -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
-samtools view -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
+if [[ "$TUMOR" == *.cram ]]; then
+    samtools view -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
+    samtools view -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
 
-wait
+    wait
 
-NORMAL=$TDIR/$(basename ${NORMAL/.cram/.bam})
-TUMOR=$TDIR/$(basename ${TUMOR/.cram/.bam})
+    NORMAL=$TDIR/$(basename ${NORMAL/.cram/.bam})
+    TUMOR=$TDIR/$(basename ${TUMOR/.cram/.bam})
 
-samtools index -@ $((CORES / 2)) $NORMAL &
-samtools index -@ $((CORES / 2)) $TUMOR
+    samtools index -@ $((CORES / 2)) $NORMAL &
+    samtools index -@ $((CORES / 2)) $TUMOR
 
-wait
+    wait
+fi
 
-ODIR=$ODIR/variant_calling/vardict/${TTAG}_vs_${NTAG}
+ODIR=$ODIR/variant_calling/vardict/$(basename ${BED/.bed/})/${TTAG}_vs_${NTAG}
 mkdir -p $ODIR
 
 OVCF=$ODIR/${TTAG}_vs_${NTAG}.vardict.vcf
