@@ -75,13 +75,13 @@ mkdir -p $ODIR
 OVCF=$ODIR/${TTAG}_vs_${NTAG}.vardict.vcf
 
 # Split BED file by chromosome (column 1)
-BEDDIR=$TDIR/bed_chunks
+BEDDIR=$ODIR/bed_chunks
 mkdir -p $BEDDIR
 
 awk -v beddir="$BEDDIR" '{
     chr = $1
     count[chr]++
-    file_num = int((count[chr] - 1) / 250)
+    file_num = int((count[chr] - 1) / 100)
     filename = sprintf("%s/chr_%s_%03d.bed", beddir, chr, file_num)
     print > filename
 }' $BED
@@ -106,7 +106,7 @@ run_vardict_chunk() {
         -b "$TUMOR|$NORMAL" \
         -c 1 -S 2 -E 3 $chunk_bed \
         > ${chunk_vcf/.vcf.gz/.tbl}
-    cat ${chunk_vcf/.vcf.gz/.tbl}
+    cat ${chunk_vcf/.vcf.gz/.tbl} \
         | $VDIR/testsomatic.R \
         | $VDIR/var2vcf_paired.pl \
              -N "$TID|$NID" \
@@ -125,8 +125,8 @@ mkdir -p $ODIR/tmp
 
 # Process chunks in parallel using GNU parallel
 printf '%s\n' "${BED_CHUNKS[@]}" \
-  | parallel -j $PARALLEL_JOBS --timeout 500% --joblog $ODIR/parallel.log \
-    'echo "Processing $(basename {})"; run_vardict_chunk {}'
+  | parallel -j $PARALLEL_JOBS --timeout 1800 --joblog $ODIR/parallel.log \
+    'echo "Processing $(basename {})"; timeout -k 30 1800 run_vardict_chunk {}'
 
 echo "All chunks completed. Merging VCFs..."
 
