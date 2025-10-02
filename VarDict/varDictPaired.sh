@@ -81,7 +81,7 @@ mkdir -p $BEDDIR
 awk -v beddir="$BEDDIR" '{
     chr = $1
     count[chr]++
-    file_num = int((count[chr] - 1) / 100)
+    file_num = int((count[chr] - 1) / 500)
     filename = sprintf("%s/chr_%s_%03d.bed", beddir, chr, file_num)
     print > filename
 }' $BED
@@ -129,6 +129,14 @@ mkdir -p $ODIR/tmp
 printf '%s\n' "${BED_CHUNKS[@]}" \
   | parallel -j $PARALLEL_JOBS --timeout 1800 --joblog $ODIR/parallel.log \
     'run_vardict_chunk {}'
+
+# Check for failed parallel jobs
+FAILED_JOBS=$(awk '$7 == -1 {print}' $ODIR/parallel.log)
+if [ -n "$FAILED_JOBS" ]; then
+    echo "ERROR: Some VarDict chunks failed to complete:"
+    echo "$FAILED_JOBS"
+    exit 1
+fi
 
 echo "All chunks completed. Merging VCFs..."
 
