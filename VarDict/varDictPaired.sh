@@ -98,6 +98,7 @@ run_vardict_chunk() {
     local chunk_name=$(basename $chunk_bed .bed)
     local chunk_vcf=$ODIR/tmp/${chunk_name}.vcf.gz
 
+    timeout -k 30 1800 \
     $VDIR/VarDict \
         -th $((CORES / PARALLEL_JOBS)) \
         -G $fasta \
@@ -116,6 +117,7 @@ run_vardict_chunk() {
         | bgzip -c \
         > $chunk_vcf
     tabix -p vcf $chunk_vcf
+
 }
 
 export -f run_vardict_chunk
@@ -126,7 +128,7 @@ mkdir -p $ODIR/tmp
 # Process chunks in parallel using GNU parallel
 printf '%s\n' "${BED_CHUNKS[@]}" \
   | parallel -j $PARALLEL_JOBS --timeout 1800 --joblog $ODIR/parallel.log \
-    'echo "Processing $(basename {})"; timeout -k 30 1800 run_vardict_chunk {}'
+    'run_vardict_chunk {}'
 
 echo "All chunks completed. Merging VCFs..."
 
@@ -145,7 +147,6 @@ for chunk in "${BED_CHUNKS[@]}"; do
     fi
 done
 
-echo bcftools concat -a "${CHUNK_VCFS[@]}" \> $OVCF
 bcftools concat -a "${CHUNK_VCFS[@]}" > $OVCF
 
 bgzip $OVCF
