@@ -96,7 +96,7 @@ echo "Processing $TOTAL_CHUNKS chromosomes in parallel (max $PARALLEL_JOBS at a 
 run_vardict_chunk() {
     local chunk_bed=$1
     local chunk_name=$(basename $chunk_bed .bed)
-    local chunk_vcf=$ODIR/${chunk_name}.vcf
+    local chunk_vcf=$ODIR/tmp/${chunk_name}.vcf.gz
 
     $VDIR/VarDict \
         -th $((CORES / PARALLEL_JOBS)) \
@@ -105,20 +105,27 @@ run_vardict_chunk() {
         -N $TID \
         -b "$TUMOR|$NORMAL" \
         -c 1 -S 2 -E 3 $chunk_bed \
+        > ${chunk_vcf/.vcf.gz/.tbl}
+    cat ${chunk_vcf/.vcf.gz/.tbl}
         | $VDIR/testsomatic.R \
         | $VDIR/var2vcf_paired.pl \
              -N "$TID|$NID" \
              -f $AF_THR \
              -G $fasta \
              -b $SDIR/GRCm38.bed \
+        | bgzip -c \
         > $chunk_vcf
+    tabix -p vcf $chunk_vcf
 }
 
 export -f run_vardict_chunk
-export VDIR TID TUMOR NORMAL CORES PARALLEL_JOBS fasta AF_THR NID SDIR TDIR
+export VDIR TID TUMOR NORMAL CORES PARALLEL_JOBS fasta AF_THR NID SDIR TDIR ODIR
+
+mkdir -p $ODIR/tmp
 
 # Process chunks in parallel using GNU parallel
-printf '%s\n' "${BED_CHUNKS[@]}" | parallel -j $PARALLEL_JOBS --joblog $ODIR/tmp/parallel.log \
+printf '%s\n' "${BED_CHUNKS[@]}" \
+  | parallel -j $PARALLEL_JOBS --timeout 500% --joblog $ODIR/parallel.log \
     'echo "Processing $(basename {})"; run_vardict_chunk {}'
 
 echo "All chunks completed. Merging VCFs..."
@@ -130,9 +137,15 @@ module load bcftools
 CHUNK_VCFS=()
 for chunk in "${BED_CHUNKS[@]}"; do
     chunk_name=$(basename $chunk .bed)
-    CHUNK_VCFS+=("$TDIR/${chunk_name}.vcf")
+    chunk_vcf="$ODIR/tmp/${chunk_name}.vcf.gz"
+
+    # Only include if file exists and has non-zero size
+    if [ -s "$chunk_vcf" ]; then
+        CHUNK_VCFS+=("$chunk_vcf")
+    fi
 done
 
+echo bcftools concat -a "${CHUNK_VCFS[@]}" \> $OVCF
 bcftools concat -a "${CHUNK_VCFS[@]}" > $OVCF
 
 bgzip $OVCF
