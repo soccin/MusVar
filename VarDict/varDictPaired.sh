@@ -30,6 +30,9 @@ else
   CORES=$LSB_DJOB_NUMPROC
 fi
 
+# Number of parallel VarDict jobs to run
+PARALLEL_JOBS=${PARALLEL_JOBS:-16}
+
 ODIR=$1
 BED=$(realpath $2)
 NORMAL=$(realpath $3)
@@ -48,6 +51,8 @@ TDIR=/scratch/$USER/vardict/$TUID
 mkdir -p $TDIR
 
 trap "rm -rf $TDIR" EXIT
+
+echo \$TDIR=$TDIR
 
 if [[ "$TUMOR" == *.cram ]]; then
     samtools view -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
@@ -69,21 +74,69 @@ mkdir -p $ODIR
 
 OVCF=$ODIR/${TTAG}_vs_${NTAG}.vardict.vcf
 
-$VDIR/VarDict \
-    -th $((CORES-2)) \
-    -G $fasta \
-    -f $AF_THR \
-    -N $TID \
-    -b "$TUMOR|$NORMAL" \
-    -c 1 -S 2 -E 3 $BED \
-    | $VDIR/testsomatic.R \
-    | $VDIR/var2vcf_paired.pl \
-         -N "$TID|$NID" \
-         -f $AF_THR \
-         -G $fasta \
-         -b $SDIR/GRCm38.bed \
-    > $OVCF
+# Split BED file by chromosome (column 1)
+BEDDIR=$TDIR/bed_chunks
+mkdir -p $BEDDIR
+
+awk -v beddir="$BEDDIR" '{
+    chr = $1
+    count[chr]++
+    file_num = int((count[chr] - 1) / 250)
+    filename = sprintf("%s/chr_%s_%03d.bed", beddir, chr, file_num)
+    print > filename
+}' $BED
+
+# Get list of BED chunks (sorted by chromosome)
+BED_CHUNKS=($BEDDIR/chr_*.bed)
+TOTAL_CHUNKS=${#BED_CHUNKS[@]}
+
+echo "Processing $TOTAL_CHUNKS chromosomes in parallel (max $PARALLEL_JOBS at a time)"
+
+# Function to run VarDict on a single BED chunk
+run_vardict_chunk() {
+    local chunk_bed=$1
+    local chunk_name=$(basename $chunk_bed .bed)
+    local chunk_vcf=$ODIR/${chunk_name}.vcf
+
+    $VDIR/VarDict \
+        -th $((CORES / PARALLEL_JOBS)) \
+        -G $fasta \
+        -f $AF_THR \
+        -N $TID \
+        -b "$TUMOR|$NORMAL" \
+        -c 1 -S 2 -E 3 $chunk_bed \
+        | $VDIR/testsomatic.R \
+        | $VDIR/var2vcf_paired.pl \
+             -N "$TID|$NID" \
+             -f $AF_THR \
+             -G $fasta \
+             -b $SDIR/GRCm38.bed \
+        > $chunk_vcf
+}
+
+export -f run_vardict_chunk
+export VDIR TID TUMOR NORMAL CORES PARALLEL_JOBS fasta AF_THR NID SDIR TDIR
+
+# Process chunks in parallel using GNU parallel
+printf '%s\n' "${BED_CHUNKS[@]}" | parallel -j $PARALLEL_JOBS --joblog $ODIR/tmp/parallel.log \
+    'echo "Processing $(basename {})"; run_vardict_chunk {}'
+
+echo "All chunks completed. Merging VCFs..."
+
+# Merge VCFs using bcftools concat
+module load bcftools
+
+# Sort chunk VCFs by chromosome order
+CHUNK_VCFS=()
+for chunk in "${BED_CHUNKS[@]}"; do
+    chunk_name=$(basename $chunk .bed)
+    CHUNK_VCFS+=("$TDIR/${chunk_name}.vcf")
+done
+
+bcftools concat -a "${CHUNK_VCFS[@]}" > $OVCF
 
 bgzip $OVCF
 tabix -p vcf ${OVCF}.gz
+
+echo "VCF merging complete: ${OVCF}.gz"
 
