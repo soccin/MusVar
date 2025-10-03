@@ -30,6 +30,9 @@ else
   CORES=$LSB_DJOB_NUMPROC
 fi
 
+# Number of parallel VarDict jobs to run
+PARALLEL_JOBS=${PARALLEL_JOBS:-16}
+
 ODIR=$1
 BED=$(realpath $2)
 NORMAL=$(realpath $3)
@@ -49,39 +52,113 @@ mkdir -p $TDIR
 
 trap "rm -rf $TDIR" EXIT
 
-samtools view -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
-samtools view -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
+echo \$TDIR=$TDIR
 
-wait
+if [[ "$TUMOR" == *.cram ]]; then
+    samtools view -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
+    samtools view -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
 
-NORMAL=$TDIR/$(basename ${NORMAL/.cram/.bam})
-TUMOR=$TDIR/$(basename ${TUMOR/.cram/.bam})
+    wait
 
-samtools index -@ $((CORES / 2)) $NORMAL &
-samtools index -@ $((CORES / 2)) $TUMOR
+    NORMAL=$TDIR/$(basename ${NORMAL/.cram/.bam})
+    TUMOR=$TDIR/$(basename ${TUMOR/.cram/.bam})
 
-wait
+    samtools index -@ $((CORES / 2)) $NORMAL &
+    samtools index -@ $((CORES / 2)) $TUMOR
 
-ODIR=$ODIR/variant_calling/vardict/${TTAG}_vs_${NTAG}
+    wait
+fi
+
+ODIR=$ODIR/variant_calling/vardict/$(basename ${BED/.bed/})/${TTAG}_vs_${NTAG}
 mkdir -p $ODIR
 
 OVCF=$ODIR/${TTAG}_vs_${NTAG}.vardict.vcf
 
-$VDIR/VarDict \
-    -th $((CORES-2)) \
-    -G $fasta \
-    -f $AF_THR \
-    -N $TID \
-    -b "$TUMOR|$NORMAL" \
-    -c 1 -S 2 -E 3 $BED \
-    | $VDIR/testsomatic.R \
-    | $VDIR/var2vcf_paired.pl \
-         -N "$TID|$NID" \
-         -f $AF_THR \
-         -G $fasta \
-         -b $SDIR/GRCm38.bed \
-    > $OVCF
+# Split BED file by chromosome (column 1)
+BEDDIR=$ODIR/bed_chunks
+mkdir -p $BEDDIR
+
+awk -v beddir="$BEDDIR" '{
+    chr = $1
+    count[chr]++
+    file_num = int((count[chr] - 1) / 250)
+    filename = sprintf("%s/chr_%s_%03d.bed", beddir, chr, file_num)
+    print > filename
+}' $BED
+
+# Get list of BED chunks (sorted by chromosome)
+BED_CHUNKS=($BEDDIR/chr_*.bed)
+TOTAL_CHUNKS=${#BED_CHUNKS[@]}
+
+echo "Processing $TOTAL_CHUNKS chromosomes in parallel (max $PARALLEL_JOBS at a time)"
+
+# Function to run VarDict on a single BED chunk
+run_vardict_chunk() {
+    local chunk_bed=$1
+    local chunk_name=$(basename $chunk_bed .bed)
+    local chunk_vcf=$ODIR/tmp/${chunk_name}.vcf.gz
+
+    timeout -k 30 3800 \
+    $VDIR/VarDict \
+        -th $((CORES / PARALLEL_JOBS)) \
+        -G $fasta \
+        -f $AF_THR \
+        -N $TID \
+        -b "$TUMOR|$NORMAL" \
+        -c 1 -S 2 -E 3 $chunk_bed \
+        > ${chunk_vcf/.vcf.gz/.tbl}
+    cat ${chunk_vcf/.vcf.gz/.tbl} \
+        | $VDIR/testsomatic.R \
+        | $VDIR/var2vcf_paired.pl \
+             -N "$TID|$NID" \
+             -f $AF_THR \
+             -G $fasta \
+             -b $SDIR/GRCm38.bed \
+        | bgzip -c \
+        > $chunk_vcf
+    tabix -p vcf $chunk_vcf
+
+}
+
+export -f run_vardict_chunk
+export VDIR TID TUMOR NORMAL CORES PARALLEL_JOBS fasta AF_THR NID SDIR TDIR ODIR
+
+mkdir -p $ODIR/tmp
+
+# Process chunks in parallel using GNU parallel
+printf '%s\n' "${BED_CHUNKS[@]}" \
+  | parallel -j $PARALLEL_JOBS --timeout 3600 --joblog $ODIR/parallel.log \
+    'run_vardict_chunk {}'
+
+# Check for failed parallel jobs
+FAILED_JOBS=$(awk '$7 == -1 {print}' $ODIR/parallel.log)
+if [ -n "$FAILED_JOBS" ]; then
+    echo "ERROR: Some VarDict chunks failed to complete:"
+    echo "$FAILED_JOBS"
+    exit 1
+fi
+
+echo "All chunks completed. Merging VCFs..."
+
+# Merge VCFs using bcftools concat
+module load bcftools
+
+# Sort chunk VCFs by chromosome order
+CHUNK_VCFS=()
+for chunk in "${BED_CHUNKS[@]}"; do
+    chunk_name=$(basename $chunk .bed)
+    chunk_vcf="$ODIR/tmp/${chunk_name}.vcf.gz"
+
+    # Only include if file exists and has non-zero size
+    if [ -s "$chunk_vcf" ]; then
+        CHUNK_VCFS+=("$chunk_vcf")
+    fi
+done
+
+bcftools concat -a "${CHUNK_VCFS[@]}" > $OVCF
 
 bgzip $OVCF
 tabix -p vcf ${OVCF}.gz
+
+echo "VCF merging complete: ${OVCF}.gz"
 
