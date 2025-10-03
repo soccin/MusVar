@@ -23,10 +23,16 @@ INTERVAL_BED_FILE=$(cat out/pipeline_info/cmd.sh.log | fgrep INTERVAL_BED_FILE: 
 
 . $RDIR/assets/Targets/$TARGET/target.resources.sh
 
-if [ -v VARDICT_BED_FILE ]; then
-    echo -e "\nUsing VarDict BED file for calling\n"
-    INTERVAL_BED_FILE=$VARDICT_BED_FILE
-fi
+# if [ -v VARDICT_BED_FILE ]; then
+#     echo -e "\nUsing VarDict BED file for calling\n"
+#     INTERVAL_BED_FILE=$VARDICT_BED_FILE
+# fi
+
+#
+# Need to use a custom bed file that removed a problematic interval
+#
+
+INTERVAL_BED_FILE=$RDIR/assets/Projects/17454/proj_17454_fixed.bed
 
 echo TARGET=$TARGET
 echo INTERVAL_BED_FILE=$INTERVAL_BED_FILE
