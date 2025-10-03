@@ -55,8 +55,8 @@ trap "rm -rf $TDIR" EXIT
 echo \$TDIR=$TDIR
 
 if [[ "$TUMOR" == *.cram ]]; then
-    samtools view -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
-    samtools view -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
+    samtools view -@ $((CORES / 2)) -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
+    samtools view -@ $((CORES / 2)) -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
 
     wait
 
