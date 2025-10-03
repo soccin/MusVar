@@ -81,7 +81,7 @@ mkdir -p $BEDDIR
 awk -v beddir="$BEDDIR" '{
     chr = $1
     count[chr]++
-    file_num = int((count[chr] - 1) / 500)
+    file_num = int((count[chr] - 1) / 250)
     filename = sprintf("%s/chr_%s_%03d.bed", beddir, chr, file_num)
     print > filename
 }' $BED
@@ -98,7 +98,7 @@ run_vardict_chunk() {
     local chunk_name=$(basename $chunk_bed .bed)
     local chunk_vcf=$ODIR/tmp/${chunk_name}.vcf.gz
 
-    timeout -k 30 1800 \
+    timeout -k 30 3800 \
     $VDIR/VarDict \
         -th $((CORES / PARALLEL_JOBS)) \
         -G $fasta \
@@ -127,7 +127,7 @@ mkdir -p $ODIR/tmp
 
 # Process chunks in parallel using GNU parallel
 printf '%s\n' "${BED_CHUNKS[@]}" \
-  | parallel -j $PARALLEL_JOBS --timeout 1800 --joblog $ODIR/parallel.log \
+  | parallel -j $PARALLEL_JOBS --timeout 3600 --joblog $ODIR/parallel.log \
     'run_vardict_chunk {}'
 
 # Check for failed parallel jobs
