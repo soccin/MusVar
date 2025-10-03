@@ -81,7 +81,7 @@ mkdir -p $BEDDIR
 awk -v beddir="$BEDDIR" '{
     chr = $1
     count[chr]++
-    file_num = int((count[chr] - 1) / 250)
+    file_num = int((count[chr] - 1) / 1000)
     filename = sprintf("%s/chr_%s_%03d.bed", beddir, chr, file_num)
     print > filename
 }' $BED
@@ -98,6 +98,8 @@ run_vardict_chunk() {
     local chunk_name=$(basename $chunk_bed .bed)
     local chunk_vcf=$ODIR/tmp/${chunk_name}.vcf.gz
 
+    $SDIR/clipRegionsByCoverage.sh $TUMOR $chunk_bed
+
     timeout -k 30 3800 \
     $VDIR/VarDict \
         -th $((CORES / PARALLEL_JOBS)) \
@@ -105,7 +107,7 @@ run_vardict_chunk() {
         -f $AF_THR \
         -N $TID \
         -b "$TUMOR|$NORMAL" \
-        -c 1 -S 2 -E 3 $chunk_bed \
+        -c 1 -S 2 -E 3 ${chunk_bed/.bed/.clip.bed} \
         > ${chunk_vcf/.vcf.gz/.tbl}
     cat ${chunk_vcf/.vcf.gz/.tbl} \
         | $VDIR/testsomatic.R \
