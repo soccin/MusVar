@@ -24,6 +24,12 @@ if [ "$#" != "4" ]; then
     exit
 fi
 
+if [ "$LSB_DJOB_NUMPROC" == "" ]; then
+  CORES=12
+else
+  CORES=$LSB_DJOB_NUMPROC
+fi
+
 ODIR=$1
 BED=$(realpath $2)
 NORMAL=$(realpath $3)
@@ -43,16 +49,16 @@ mkdir -p $TDIR
 
 trap "rm -rf $TDIR" EXIT
 
-samtools view -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
-samtools view -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
+samtools view -@ $((CORES / 2)) -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
+samtools view -@ $((CORES / 2)) -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
 
 wait
 
 NORMAL=$TDIR/$(basename ${NORMAL/.cram/.bam})
 TUMOR=$TDIR/$(basename ${TUMOR/.cram/.bam})
 
-samtools index -@ 6 $NORMAL &
-samtools index -@ 6 $TUMOR
+samtools index -@ $((CORES / 2)) $NORMAL &
+samtools index -@ $((CORES / 2)) $TUMOR
 
 wait
 
