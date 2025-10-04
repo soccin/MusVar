@@ -1,5 +1,9 @@
 # Mouse Variant Pipeline
 
+## ABANDONED::FAILED
+
+**FAILED. This did not work. Abandoned**
+
 ## Branch proj/17454
 
 Version to work with Mouse WGS samples. This version/branch has the
