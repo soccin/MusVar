@@ -28,6 +28,7 @@ main() {
   # Subtract blacklist regions and filter out mitochondrial DNA
   bedtools subtract -a $MAIN_BED -b $GRCM38_BLACKLIST \
     | grep -E -v "^MT" > $OUTPUT_BED
+
 }
 
 main "$@"
