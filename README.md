@@ -1,6 +1,6 @@
 # Mouse Variant Pipeline
 
-## Branch devs/wgs-01
+## Branch feat/wgs
 
 Version to work with Mouse WGS samples. 
 
