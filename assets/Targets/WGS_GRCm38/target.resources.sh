@@ -1,2 +1,2 @@
-INTERVAL_BED_FILE=$RDIR/assets/Targets/WGS_GRCm38/GRCm38.main.bed
-VARDICT_BED_FILE=$RDIR/assets/Targets/Twist_Mouse_Exome_Target_Rev1_GRCm38/Twist_Mouse_Exome_Target_Rev1_7APR20_GRCm38_CLEAN__1000pad.bed
+INTERVAL_BED_FILE=$RDIR/assets/Targets/WGS_GRCm38/GRCm38.subBlack.bed
+VARDICT_BED_FILE=$RDIR/assets/Targets/WGS_GRCm38/GRCm38.subBlack.bed
