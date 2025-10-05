@@ -4,6 +4,9 @@
 
 Appears we need to mask out problematic regions for WGS samples. So use the Boyle blacklist to create a masked version of the full genome to use. Also get rid of chrM just in case.
 
+Mutect seems to fail (at filtering) for the full GENOME regions. Trying to use
+just the exome (create from GTF and BLACK-list bed)
+
 
 ### Boyle-Lab/Blacklist
 
