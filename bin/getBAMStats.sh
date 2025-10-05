@@ -13,11 +13,18 @@ SID=$(samtools view -H $CRAM | fgrep @RG | head -1 | tr '\t' '\n' | fgrep LB | s
 
 ODIR=post/metrics/$SID
 mkdir -p $ODIR
-TDIR=tmp/bam/$SID
+
+TUID=$(date +"%Y%m%d_%H%M%S")_$(uuidgen | sed 's/-.*//')
+TDIR=/scratch/$USER/MusVar/$TUID
 mkdir -p $TDIR
 
-samtools view -@ 8 -T $GENOME -b $CRAM -o $TDIR/${SID}.bam
-samtools index -@ 8 $TDIR/${SID}.bam
+trap "rm -rf $TDIR" EXIT
+
+CORES=${LSB_DJOB_NUMPROC:-8}
+echo \$CORES=$CORES
+
+samtools view -@ $CORES -T $GENOME -b $CRAM -o $TDIR/${SID}.bam
+samtools index -@ $CORES $TDIR/${SID}.bam
 
 picardV3 \
     CollectAlignmentSummaryMetrics \

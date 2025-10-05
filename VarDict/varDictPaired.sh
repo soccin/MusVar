@@ -55,8 +55,9 @@ trap "rm -rf $TDIR" EXIT
 echo \$TDIR=$TDIR
 
 if [[ "$TUMOR" == *.cram ]]; then
-    samtools view -@ $((CORES / 2)) -t $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
-    samtools view -@ $((CORES / 2)) -t $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
+
+    samtools view -@ $((CORES / 2)) -T $fasta -b $NORMAL >$TDIR/$(basename ${NORMAL/.cram/.bam}) &
+    samtools view -@ $((CORES / 2)) -T $fasta -b $TUMOR >$TDIR/$(basename ${TUMOR/.cram/.bam})
 
     wait
 
@@ -67,6 +68,7 @@ if [[ "$TUMOR" == *.cram ]]; then
     samtools index -@ $((CORES / 2)) $TUMOR
 
     wait
+
 fi
 
 ODIR=$ODIR/variant_calling/vardict/$(basename ${BED/.bed/})/${TTAG}_vs_${NTAG}

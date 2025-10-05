@@ -44,8 +44,9 @@ echo CORES=$CORES
 # Get more stats from BAM
 #
 
-ls out/preprocessing/markduplicates/*/*cram \
-    | xargs -n 1 bsub $BSUB_ARGS -o LSF.S_$$/ -J Stats_$$ -n 8 -R cmorsc1 -W 24:00 \
+#ls out/preprocessing/markduplicates/*/*cram \
+ls out/preprocessing/recalibrated/*/*cram \
+    | xargs -n 1 bsub $BSUB_ARGS -o LSF.S_$$/ -J Stats_$$ -n $CORES -R cmorsc1 -W 24:00 \
         $SDIR/bin/getBAMStats.sh
 
 #######################################################
