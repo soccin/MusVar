@@ -7,8 +7,9 @@ MAX_COVERAGE <- 5000
 
 suppressPackageStartupMessages(require(tidyverse))
 
-cov <- read_tsv(cov_file, col_names = FALSE) |>
-  mutate(coverage = X4 / (X3 - X2))
+# Read coverage file and calculate coverage per region
+cov <- read_tsv(cov_file, col_names = FALSE) %>%
+  mutate(coverage = .[[ncol(.)]] / (X3 - X2))
 
 # Write normal coverage regions (< MAX_COVERAGE)
 cov |>
