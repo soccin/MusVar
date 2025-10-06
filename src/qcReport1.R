@@ -82,14 +82,23 @@ mdm=fs::dir_ls("out/reports/markduplicates",recur=T,regex="metrics") %>%
     rename(sample=SAMPLE) %>%
     left_join(manifest)
 
-hsm=fs::dir_ls("post/metrics",recur=T,regex="_hs_metrics.txt") %>%
-    map(read_hs_metrics,.progress=T) %>%
-    bind_rows %>%
-    type_convert %>%
-    select(all_of(hs.metrics)) %>%
-    gather(Metric,Value,-SAMPLE) %>%
-    rename(sample=SAMPLE) %>%
-    left_join(manifest)
+#
+#
+#
+hsmFiles=fs::dir_ls("post/metrics",recur=T,regex="_hs_metrics.txt")
+
+if(len(hsmFiles)>0) {
+  hsm=fs::dir_ls("post/metrics",recur=T,regex="_hs_metrics.txt") %>%
+      map(read_hs_metrics,.progress=T) %>%
+      bind_rows %>%
+      type_convert %>%
+      select(all_of(hs.metrics)) %>%
+      gather(Metric,Value,-SAMPLE) %>%
+      rename(sample=SAMPLE) %>%
+      left_join(manifest)
+} else {
+  hsm=NULL
+}
 
 if(interactive()) x11()
 
