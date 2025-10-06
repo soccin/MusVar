@@ -46,6 +46,8 @@ main() {
     | bedtools slop -b 1000 -g ~/lib/bedtools/genomes/mouse.mm10.genome \
     | bedtools merge -c 4 -o distinct \
     | bedtools subtract -a - -b $GRCM38_BLACKLIST \
+    | bedtools intersect -a - -b $MAIN_BED \
+    | grep -E -v "^MT" \
     > ${BASE_GTF}_Exons_p1000_SubBlack.bed
 
 
