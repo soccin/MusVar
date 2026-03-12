@@ -1,10 +1,21 @@
 #!/bin/bash
 
-# BSUB: -o LSF/ -J C2B -n 18 -W 12:00 -R cmorsc1
+# bsub -o LSF.C2B/ -J C2B -n 18 -W 12:00 -R cmorsc1
+
+LSF=0
+if [[ "${1:-}" == "-l" || "${1:-}" == "--lsf" ]]; then
+    LSF=1
+    shift
+fi
 
 if [ "$#" != "1" ]; then
-    echo -e "\n\tusage: sarekCramToBam.sh FILE.cram\n"
+    echo -e "\n\tusage: sarekCramToBam.sh [-l|--lsf] FILE.cram\n"
     exit
+fi
+
+if [ "$LSF" == "1" ]; then
+    mkdir -p LSF.C2B
+    exec bsub -o LSF.C2B/ -J C2B -n 18 -W 12:00 -R cmorsc1 "$0" "$@"
 fi
 
 SDIR=$(dirname "$(readlink -f "$0")")
